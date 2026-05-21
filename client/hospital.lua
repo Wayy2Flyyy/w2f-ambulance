@@ -1,0 +1,6 @@
+RegisterNetEvent('w2f-ambulance:client:respawnAtHospital', function(coords)
+    DoScreenFadeOut(500)
+    Wait(650)
+    SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, false, false, false, false)
+    DoScreenFadeIn(500)
+end)

@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS w2f_ambulance_records (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  citizenid VARCHAR(64) NOT NULL,
+  author VARCHAR(64) NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

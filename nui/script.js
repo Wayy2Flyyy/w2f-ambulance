@@ -1,0 +1,1 @@
+window.addEventListener('message', (event)=>{ if(event.data?.status){ document.getElementById('status').textContent = event.data.status; }});document.getElementById('closeBtn').addEventListener('click',()=>fetch(`https://${GetParentResourceName()}/close`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}));

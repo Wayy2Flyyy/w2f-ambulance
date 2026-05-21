@@ -1,0 +1,1 @@
+Config.Vehicles = { ambulance = 'ambulance' }
