@@ -9,9 +9,8 @@ Includes death/laststand, injuries, hospital check-in, EMS radial (F6), armory, 
 <img width="1489" height="838" alt="image" src="https://github.com/user-attachments/assets/736a01fa-f8c3-44bd-8350-80bf948162c1" />
 <img width="1481" height="841" alt="image" src="https://github.com/user-attachments/assets/f0280fe3-f566-44f4-8f92-4265db94c7a0" />
 <img width="1489" height="839" alt="image" src="https://github.com/user-attachments/assets/2da92d46-6dfa-45a7-af87-dfcda2ad0f3c" />
-<img width="583" height="397" alt="image" src="https://github.com/user-attachments/assets/0d3f0e11-a91a-4ad4-85d8-46e31585be0b" />
 <img width="1492" height="837" alt="image" src="https://github.com/user-attachments/assets/524e5239-5e77-4115-bf96-a505f51cf2ab" />
-
+<img width="583" height="397" alt="image" src="https://github.com/user-attachments/assets/0d3f0e11-a91a-4ad4-85d8-46e31585be0b" />
 
 ## Requirements
 
