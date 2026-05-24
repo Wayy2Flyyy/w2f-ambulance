@@ -4,6 +4,14 @@ Full EMS job + medical core for **Qbox**. Replaces `qbx_ambulancejob`, `qbx_medi
 
 Includes death/laststand, injuries, hospital check-in, EMS radial (F6), armory, garage, pharmacy, prescriptions, and scripted meds.
 
+# Preview
+<img width="1481" height="840" alt="image" src="https://github.com/user-attachments/assets/6908996a-27c5-4148-b87a-2c6ca06b4006" />
+<img width="1489" height="838" alt="image" src="https://github.com/user-attachments/assets/736a01fa-f8c3-44bd-8350-80bf948162c1" />
+<img width="1481" height="841" alt="image" src="https://github.com/user-attachments/assets/f0280fe3-f566-44f4-8f92-4265db94c7a0" />
+<img width="1489" height="839" alt="image" src="https://github.com/user-attachments/assets/2da92d46-6dfa-45a7-af87-dfcda2ad0f3c" />
+<img width="1492" height="837" alt="image" src="https://github.com/user-attachments/assets/524e5239-5e77-4115-bf96-a505f51cf2ab" />
+
+
 ## Requirements
 
 - [qbx_core](https://github.com/Qbox-project/qbx_core)
