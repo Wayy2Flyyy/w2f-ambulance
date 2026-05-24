@@ -1,6 +1,6 @@
 # w2f-ambulance
 
-Full EMS job + medical core for **Qbox**. Replaces `qbx_ambulancejob`, `qbx_medical`, and `w2f-prescription` in one resource.
+Full EMS job + medical core for **Qbox**. Replaces `qbx_ambulancejob`, `qbx_medical`, in one resource.
 
 Includes death/laststand, injuries, hospital check-in, EMS radial (F6), armory, garage, pharmacy, prescriptions, and scripted meds.
 
