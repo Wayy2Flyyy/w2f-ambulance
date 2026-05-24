@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>w2f-ambulance</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div id="ems-radial" class="ems-radial" hidden>
+        <div class="ems-radial__backdrop" data-action="close"></div>
+        <div class="ems-radial__wrap">
+            <svg id="ems-radial-svg" viewBox="-260 -260 520 520" class="ems-radial__svg"></svg>
+            <div class="ems-radial__center" id="ems-radial-center" data-action="radial-back" title="Back / Close">
+                <span class="ems-radial__crest">+</span>
+                <strong id="ems-radial-rank">EMS</strong>
+                <small id="ems-radial-status">ON DUTY</small>
+                <span id="ems-radial-hint" class="ems-radial__hint">CLOSE</span>
+            </div>
+            <div id="ems-radial-title" class="ems-radial__title">EMS Operations</div>
+        </div>
+    </div>
+
+    <div id="ems-equipment" class="ems-overlay" hidden>
+        <div class="ems-overlay__backdrop" data-action="eq-close"></div>
+        <div class="ems-overlay__panel">
+            <header class="ems-panel__head">
+                <div>
+                    <p class="eyebrow" id="eq-subtitle">Medical Supply Locker</p>
+                    <h1 id="eq-title">Pillbox Armory</h1>
+                </div>
+                <button class="ems-btn ghost" data-action="eq-close">Close</button>
+            </header>
+            <div class="ems-panel__body eq-layout">
+                <aside class="eq-sidebar" id="eq-categories"></aside>
+                <main class="eq-main">
+                    <input id="eq-search" class="ems-input" placeholder="Search supplies..." />
+                    <div id="eq-grid" class="eq-grid"></div>
+                </main>
+            </div>
+            <footer class="ems-panel__foot">
+                <span id="eq-rank" class="mono">Rank</span>
+            </footer>
+        </div>
+    </div>
+
+    <div id="ems-garage" class="ems-overlay" hidden>
+        <div class="ems-overlay__backdrop" data-action="gr-close"></div>
+        <div class="ems-overlay__panel">
+            <header class="ems-panel__head">
+                <div>
+                    <p class="eyebrow" id="gr-subtitle">Motor Pool</p>
+                    <h1 id="gr-title">EMS Fleet</h1>
+                </div>
+                <button class="ems-btn ghost" data-action="gr-close">Close</button>
+            </header>
+            <div class="ems-panel__body">
+                <div id="gr-grid" class="gr-grid"></div>
+            </div>
+            <footer class="ems-panel__foot">
+                <span id="gr-rank" class="mono">Rank</span>
+            </footer>
+        </div>
+    </div>
+
+    <div id="ems-tablet" class="ems-tablet" hidden>
+        <header class="ems-tablet__top">
+            <div class="ems-tablet__brand">
+                <div>
+                    <p class="eyebrow">Hospital Operations</p>
+                    <strong>Clinical Command Tablet</strong>
+                </div>
+            </div>
+            <div class="ems-tablet__officer">
+                <span id="tb-officer">—</span>
+                <small id="tb-rank" class="mono">—</small>
+            </div>
+            <button class="ems-btn ghost" data-action="tb-close">✕</button>
+        </header>
+        <nav class="ems-tablet__tabs" id="tb-tabs"></nav>
+        <main class="ems-tablet__content" id="tb-content"></main>
+    </div>
+
+    <div id="ems-minigame" class="ems-minigame" hidden>
+        <div class="ems-minigame__panel">
+            <header class="ems-minigame__head">
+                <div>
+                    <p class="eyebrow">Field Care Protocol</p>
+                    <h2 id="mg-title">EMS Procedure</h2>
+                    <p id="mg-subtitle" class="ems-minigame__sub">Patient assessment</p>
+                </div>
+                <div class="ems-minigame__vitals">
+                    <div><span class="eyebrow">BPM</span><strong id="mg-bpm" class="mono">82</strong></div>
+                    <div><span class="eyebrow">SpO2</span><strong id="mg-spo2" class="mono">92%</strong></div>
+                </div>
+            </header>
+            <div id="mg-stage" class="ems-minigame__stage">
+                <div id="mg-mode-pulse" class="mg-mode">
+                    <svg class="ems-minigame__ekg" viewBox="0 0 420 48" aria-hidden="true">
+                        <path id="mg-ekg-path" d="M0 24 L420 24"></path>
+                    </svg>
+                    <div class="ems-minigame__track-wrap">
+                        <div id="mg-track" class="ems-minigame__track">
+                            <div id="mg-zone" class="ems-minigame__zone"></div>
+                            <div id="mg-marker" class="ems-minigame__marker"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mg-mode-sequence" class="mg-mode" hidden>
+                    <div id="mg-vitals" class="mg-vitals"></div>
+                    <p id="mg-sequence-prompt" class="mg-mode-prompt mono">Awaiting vitals…</p>
+                </div>
+                <div id="mg-mode-hold" class="mg-mode" hidden>
+                    <div class="ems-minigame__track-wrap">
+                        <div id="mg-hold-track" class="ems-minigame__track">
+                            <div id="mg-hold-zone" class="ems-minigame__zone"></div>
+                            <div id="mg-hold-marker" class="ems-minigame__marker"></div>
+                        </div>
+                    </div>
+                    <div id="mg-hold-bar" class="mg-hold-bar"><span id="mg-hold-fill"></span></div>
+                </div>
+                <div id="mg-mode-breathe" class="mg-mode" hidden>
+                    <div id="mg-lungs" class="mg-lungs"></div>
+                    <p id="mg-breathe-prompt" class="mg-mode-prompt mono">Assist on inhale</p>
+                </div>
+                <div id="mg-mode-gauge" class="mg-mode" hidden>
+                    <div class="mg-gauge">
+                        <div id="mg-gauge-zone" class="mg-gauge__zone"></div>
+                        <div id="mg-gauge-needle" class="mg-gauge__needle"></div>
+                    </div>
+                </div>
+                <div id="mg-mode-dress" class="mg-mode" hidden>
+                    <div class="mg-dress">
+                        <div class="mg-dress__body">
+                            <svg class="mg-dress__silhouette" viewBox="0 0 120 180" aria-hidden="true">
+                                <ellipse cx="60" cy="28" rx="18" ry="22" />
+                                <path d="M36 48 Q60 58 84 48 L92 118 Q60 128 28 118 Z" />
+                                <path d="M36 48 L24 92 M84 48 L96 92" />
+                                <path d="M40 118 L34 168 M80 118 L86 168" />
+                            </svg>
+                            <div id="mg-dress-wounds" class="mg-dress__wounds"></div>
+                        </div>
+                        <div class="mg-dress__applicator">
+                            <div class="mg-dress__rail">
+                                <div id="mg-dress-window" class="mg-dress__window"></div>
+                                <div id="mg-dress-pack" class="mg-dress__pack">
+                                    <span class="mg-dress__pack-icon">▣</span>
+                                    <span class="mg-dress__pack-label">Bandage</span>
+                                </div>
+                            </div>
+                            <p id="mg-dress-step" class="mg-mode-prompt mono">Dress: —</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p id="mg-instruction" class="ems-minigame__instruction">Press SPACE when the pulse hits the target zone</p>
+            <div class="ems-minigame__meta">
+                <span id="mg-round" class="mono">Round 1 / 3</span>
+                <span id="mg-tries" class="mono ems-minigame__tries">3 tries left</span>
+                <div id="mg-dots" class="ems-minigame__dots"></div>
+                <span id="mg-status" class="ems-minigame__status"></span>
+            </div>
+            <footer class="ems-minigame__foot">
+                <button id="mg-action" class="ems-btn" type="button">Stabilize</button>
+                <span class="ems-minigame__hint"><span class="kbd">SPACE</span> confirm · <span class="kbd">ESC</span> cancel</span>
+            </footer>
+        </div>
+    </div>
+
+    <div id="ems-public-records" class="ems-overlay" hidden>
+        <div class="ems-overlay__backdrop" data-action="pr-close"></div>
+        <div class="ems-overlay__panel">
+            <header class="ems-panel__head">
+                <div>
+                    <p class="eyebrow" id="pr-subtitle">Pillbox Hospital</p>
+                    <h1 id="pr-title">Public Medical Records</h1>
+                </div>
+                <button class="ems-btn ghost" data-action="pr-close">Close</button>
+            </header>
+            <div class="ems-panel__body">
+                <div id="pr-results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="ui.js"></script>
+    <script src="equipment.js"></script>
+    <script src="garage.js"></script>
+    <script src="tablet.js"></script>
+    <script src="minigame.js"></script>
+    <script src="public-records.js"></script>
+</body>
+</html>
