@@ -15,6 +15,7 @@ local radialHandlers = {}
 local radialStack = {}
 local radialIdentity = {}
 local radialState = { open = false, root = nil, current = nil }
+local radialPatientStatus = nil
 local equipmentOpen = false
 local equipmentKind = 'armory'
 local garageOpen = false
@@ -71,6 +72,7 @@ function UI.Radial.Open(rootId, opts)
     radialState.open = true
     radialState.root = rootId
     radialState.current = rootId
+    radialPatientStatus = nil
     setFocus(true, true, true)
     sendNUI('radial:open', { menu = menu, root = rootId })
     local onDuty = W2FAmbulance.Client.isEmsOnDuty()
@@ -90,9 +92,33 @@ end
 function UI.Radial.Close()
     if not radialState.open then return end
     radialState.open = false
+    radialPatientStatus = nil
     radialStack = {}
     setFocus(false, false, false)
     sendNUI('radial:close')
+end
+
+function UI.Radial.OpenPatientStatus(patientStatus, menu)
+    radialPatientStatus = patientStatus
+    sendNUI('radial:patientStatusOpen', {
+        patientStatus = patientStatus,
+        menu = menu,
+        identity = radialIdentity
+    })
+end
+
+function UI.Radial.UpdatePatientStatus(patientStatus)
+    radialPatientStatus = patientStatus
+    sendNUI('radial:patientStatusUpdate', { patientStatus = patientStatus })
+end
+
+function UI.Radial.ClearPatientStatus()
+    radialPatientStatus = nil
+    sendNUI('radial:patientStatusClear')
+end
+
+function UI.Radial.MarkPatientTreated(result)
+    sendNUI('radial:patientStatusTreated', result or {})
 end
 
 function UI.Radial.Navigate(menuId, skipStack)

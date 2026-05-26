@@ -12,6 +12,7 @@ local ASSESS_TTL = 300
 
 ---@type table<number, table<number, { treatment: string, label: string, assessedAt: integer }>>
 local records = {}
+local radialConfig = (((Config or {}).Systems or {}).Radial or {}).PatientStatus or {}
 
 local function treatmentLabel(treatment)
     local key = ('treatment.%s'):format(treatment)
@@ -265,6 +266,106 @@ lib.callback.register('w2f-ambulance:cb:assessPatient', function(medicSrc, patie
         status = status,
         cause = summary.dominantClass,
         causeLabel = summary.causeLabel,
+    }
+end)
+
+lib.callback.register('w2f-ambulance:cb:radialPatientStatus', function(medicSrc, patientSrc)
+    local medic = exports.qbx_core:GetPlayer(medicSrc)
+    local patient = exports.qbx_core:GetPlayer(patientSrc)
+    if not medic or not patient then
+        return { ok = false, message = 'No valid patient found.' }
+    end
+    if medicSrc == patientSrc then
+        return { ok = false, message = 'You cannot scan yourself.' }
+    end
+    if medic.PlayerData.job.type ~= 'ems' then
+        return { ok = false, message = 'You must be EMS to use patient diagnostics.' }
+    end
+    if radialConfig.RequireOnDuty ~= false and not W2FAmbulance.Core.isEmsOnDuty(medic) then
+        return { ok = false, message = 'You must be on duty to scan patient status.' }
+    end
+
+    local scanDistance = radialConfig.PatientScanDistance or 3.0
+    local medicPed, patientPed = GetPlayerPed(medicSrc), GetPlayerPed(patientSrc)
+    if not medicPed or not patientPed or medicPed <= 0 or patientPed <= 0 then
+        return { ok = false, message = 'Unable to scan patient.' }
+    end
+    local distance = #(GetEntityCoords(medicPed) - GetEntityCoords(patientPed))
+    if distance > scanDistance then
+        return { ok = false, message = 'No Patient Found. Move closer to a patient.' }
+    end
+
+    local okSummary, summary = pcall(Triage.getPatientSummary, patientSrc)
+    local okStatus, status = pcall(function() return exports[resource]:GetPlayerStatus(patientSrc) end)
+    if not okSummary or not summary or not okStatus or not status then
+        return { ok = false, message = 'Unable To Scan. Move closer and retry.' }
+    end
+
+    local requiredTreatment = summary.treatment or 'none'
+    local treatmentLabelMap = {
+        treat = 'Treat Wounds',
+        repair = 'Stabilize Before Transport',
+        help = 'Assist Breathing',
+        revive = 'CPR / Revive Patient',
+        none = 'No Treatment Required'
+    }
+    local bleedLabels = { [0] = 'None', [1] = 'Light', [2] = 'Moderate' }
+    local bleedLevel = summary.bleedLevel or 0
+    local maxSeverity = summary.maxSeverity or 0
+    local deathState = Player(patientSrc).state[DEATH_STATE_STATE_BAG] or sharedConfig.deathState.ALIVE
+
+    local conditionMap = {
+        treat = (maxSeverity >= 2 and 'Stable') or 'Minor',
+        repair = (maxSeverity >= 4 and 'Critical') or 'Serious',
+        help = 'Unstable',
+        revive = 'Critical',
+        none = 'Stable'
+    }
+
+    local consciousness = 'Conscious'
+    if deathState == sharedConfig.deathState.DEAD then
+        consciousness = 'Dead'
+    elseif deathState == sharedConfig.deathState.LAST_STAND then
+        consciousness = 'Downed'
+    elseif requiredTreatment == 'revive' then
+        consciousness = 'Unconscious'
+    end
+
+    local pulse = (requiredTreatment == 'revive' and 'None') or (maxSeverity >= 3 and 'Weak') or 'Stable'
+    local breathing = (requiredTreatment == 'help' and 'Irregular') or (requiredTreatment == 'revive' and 'None') or 'Stable'
+    local priority = (requiredTreatment == 'none' and 'green')
+        or (requiredTreatment == 'revive' and (deathState == sharedConfig.deathState.DEAD and 'black' or 'red'))
+        or (requiredTreatment == 'repair' and (maxSeverity >= 3 and 'red' or 'yellow'))
+        or (requiredTreatment == 'help' and (maxSeverity >= 3 and 'red' or 'yellow'))
+        or (maxSeverity >= 2 and 'yellow' or 'green')
+
+    local injuries = (status.injuries and #status.injuries > 0) and table.concat(status.injuries, ', ') or 'Unknown / Not Detected'
+    local first = patient.PlayerData.charinfo and patient.PlayerData.charinfo.firstname or nil
+    local last = patient.PlayerData.charinfo and patient.PlayerData.charinfo.lastname or nil
+    local fullName = ((first or '') .. ' ' .. (last or '')):gsub('^%s*(.-)%s*$', '%1')
+    local patientName = fullName ~= '' and fullName or 'Unknown Patient'
+
+    Triage.record(medicSrc, patientSrc)
+
+    return {
+        ok = true,
+        patientStatus = {
+            active = true,
+            patientServerId = patientSrc,
+            patientName = patientName,
+            condition = conditionMap[requiredTreatment] or 'Unknown',
+            consciousness = consciousness,
+            pulse = pulse,
+            breathing = breathing,
+            bleeding = bleedLabels[bleedLevel] or 'Heavy',
+            injuries = injuries,
+            cause = summary.causeLabel or 'Unknown / Not Detected',
+            severity = math.min(maxSeverity, 4),
+            recommendedTreatment = treatmentLabelMap[requiredTreatment] or 'Further Assessment Required',
+            requiredTreatment = requiredTreatment,
+            priority = priority,
+            treated = false
+        }
     }
 end)
 

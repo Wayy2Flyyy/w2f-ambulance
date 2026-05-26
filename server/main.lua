@@ -2,6 +2,7 @@ lib.callback.register('qbx_ambulancejob:server:getPlayerStatus', function(_, tar
 	return exports[GetCurrentResourceName()]:GetPlayerStatus(targetSrc)
 end)
 
+
 local function alertAmbulance(src, text)
 	local ped = GetPlayerPed(src)
 	local coords = GetEntityCoords(ped)
@@ -113,6 +114,7 @@ RegisterNetEvent('hospital:server:TreatWounds', function(playerId)
 			'Field wound treatment administered by EMS.'
 		)
 	end
+	TriggerClientEvent('w2f-ambulance:client:patientTreatmentResult', src, { success = true, action = 'treat', patientId = playerId })
 end)
 
 ---@param playerId number
@@ -153,6 +155,7 @@ RegisterNetEvent('hospital:server:StabilizePatient', function(playerId)
 			'Field trauma stabilization administered by EMS.'
 		)
 	end
+	TriggerClientEvent('w2f-ambulance:client:patientTreatmentResult', src, { success = true, action = 'repair', patientId = playerId })
 end)
 
 ---@param playerId number
@@ -188,6 +191,7 @@ RegisterNetEvent('hospital:server:AssistPatient', function(playerId)
             'Field breathing assist provided by EMS.'
         )
     end
+	TriggerClientEvent('w2f-ambulance:client:patientTreatmentResult', src, { success = true, action = 'assist', patientId = playerId })
 end)
 
 ---@param playerId number
@@ -236,6 +240,7 @@ RegisterNetEvent('hospital:server:RevivePlayer', function(playerId)
 			'Patient revived in the field by EMS personnel.'
 		)
 	end
+	TriggerClientEvent('w2f-ambulance:client:patientTreatmentResult', src, { success = true, action = 'revive', patientId = playerId })
 end)
 
 ---@param targetId number

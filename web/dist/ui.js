@@ -2,6 +2,7 @@
     'use strict';
 
     var radialState = { menu: null, stack: [], depth: 0, visible: false };
+    var patientStatus = null;
 
     function post(name, payload) {
         if (typeof GetParentResourceName !== 'function') return Promise.resolve({});
@@ -108,6 +109,26 @@
         if (!root) return;
         root.hidden = !visible;
     }
+    function statusClass(value) {
+        var t = (value || '').toLowerCase();
+        if (t.includes('critical') || t.includes('unconscious') || t.includes('heavy')) return 'is-red';
+        if (t.includes('weak') || t.includes('irregular') || t.includes('moderate')) return 'is-yellow';
+        if (t.includes('stable') || t.includes('none') || t.includes('present')) return 'is-green';
+        return '';
+    }
+    function renderPatientStatus(ps) {
+        patientStatus = ps || null;
+        var panel = $('ems-patient-status'), body = $('ems-patient-status-body'), rec = $('ems-patient-status-rec');
+        if (!panel || !body || !rec) return;
+        if (!ps || !ps.active) { panel.hidden = true; return; }
+        panel.hidden = false;
+        var rows = [
+            ['Condition', ps.condition], ['Consciousness', ps.consciousness], ['Pulse', ps.pulse], ['Breathing', ps.breathing],
+            ['Bleeding', ps.bleeding], ['Injuries', ps.injuries], ['Cause', ps.cause], ['Severity', 'Level ' + (ps.severity || 0)]
+        ];
+        body.innerHTML = rows.map(function (r) { return '<div class="row"><span>' + r[0] + ':</span><b class="' + statusClass(r[1]) + '">' + (r[1] || 'Unknown / Not Detected') + '</b></div>'; }).join('');
+        rec.textContent = 'Recommended: ' + (ps.recommendedTreatment || 'Further Assessment Required');
+    }
 
     window.addEventListener('message', function (event) {
         var msg = event.data || {};
@@ -127,6 +148,21 @@
             radialState.stack = [];
             radialState.depth = 0;
             setRadialVisible(false);
+            renderPatientStatus(null);
+        } else if (msg.action === 'radial:patientStatusOpen' || msg.action === 'radial:patientStatusUpdate') {
+            renderPatientStatus(msg.data && msg.data.patientStatus);
+        } else if (msg.action === 'radial:patientStatusClear') {
+            renderPatientStatus(null);
+        } else if (msg.action === 'radial:patientStatusTreated') {
+            renderPatientStatus({ active: true, condition: 'Stabilized', consciousness: 'Recovered', pulse: 'Stable', breathing: 'Stable', bleeding: 'Controlled', injuries: '-', cause: '-', severity: 1, recommendedTreatment: 'Returning to Patient Care...' });
+        } else if (msg.action === 'radial:patientStatusError') {
+            var kind = msg.data && msg.data.kind || 'treatment';
+            var message = msg.data && msg.data.message || 'Unknown error';
+            if (kind === 'scan') {
+                renderPatientStatus({ active: true, condition: 'Unable To Scan', consciousness: message, pulse: 'Unknown', breathing: 'Unknown', bleeding: 'Unknown', injuries: 'No Patient Found', cause: 'Not Detected', severity: 0, recommendedTreatment: 'Move closer and retry.' });
+            } else {
+                renderPatientStatus({ active: true, condition: 'Treatment Failed', consciousness: message, pulse: '-', breathing: '-', bleeding: '-', injuries: '-', cause: '-', severity: 0, recommendedTreatment: 'Reassess and retry.' });
+            }
         }
     });
 
