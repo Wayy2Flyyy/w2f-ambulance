@@ -4,6 +4,18 @@ Config.Systems = {
     Radial = {
         Key = 'F6',
         Command = 'emsradial',
+        PatientStatus = {
+            Enabled = true,
+            KeepRadialOpenAfterScan = true,
+            AutoReturnAfterTreatment = true,
+            ReturnDelayMs = 1500,
+            PatientScanDistance = 3.0,
+            ShowPatientName = true,
+            ShowServerId = true,
+            ShowRecommendedTreatment = true,
+            ShowSeverity = true,
+            UseColourSeverity = true,
+        },
     },
     CommandTablet = {
         Command = 'emstablet',

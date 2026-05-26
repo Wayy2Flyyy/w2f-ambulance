@@ -257,6 +257,19 @@ body {
     background: rgba(0,0,0,0.45); border: 1px solid var(--ems-line);
     font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
 }
+.ems-patient-status {
+    position: absolute; left: 50%; top: 38px; transform: translateX(-50%);
+    width: 360px; min-height: 145px; z-index: 4;
+    border: 1px solid rgba(45,212,191,.75); border-radius: 14px;
+    background: rgba(5, 32, 34, .62); box-shadow: 0 0 24px rgba(45,212,191,.2);
+    padding: 10px 12px;
+}
+.ems-patient-status__header { font-weight: 800; font-size: 11px; letter-spacing: .14em; color: #a7fff1; margin-bottom: 6px; }
+.ems-patient-status__body .row { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; margin-bottom: 3px; }
+.ems-patient-status__body span { color: #e8fffb; opacity: .9; }
+.ems-patient-status__body b { font-weight: 700; text-align: right; }
+.ems-patient-status__rec { text-align: center; margin-top: 6px; color: #6ee7ff; font-weight: 700; font-size: 11px; }
+.is-red { color: #ff6b6b; } .is-yellow { color: #f59e0b; } .is-green { color: #4ade80; }
 
 /* ── Enterprise tablet tokens ─────────────────────────────────────────── */
 :root {

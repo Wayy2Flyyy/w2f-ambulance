@@ -2,6 +2,42 @@ lib.callback.register('qbx_ambulancejob:server:getPlayerStatus', function(_, tar
 	return exports[GetCurrentResourceName()]:GetPlayerStatus(targetSrc)
 end)
 
+lib.callback.register('w2f-ambulance:cb:radialPatientStatus', function(src, patientId)
+	local medic = exports.qbx_core:GetPlayer(src)
+	local patient = exports.qbx_core:GetPlayer(patientId)
+	if not medic or not patient then return { ok = false, message = 'Patient not available.' } end
+	if medic.PlayerData.job.type ~= 'ems' or not W2FAmbulance.Core.isEmsOnDuty(medic) then
+		return { ok = false, message = 'You must be on duty EMS.' }
+	end
+	local mPed, pPed = GetPlayerPed(src), GetPlayerPed(patientId)
+	if not mPed or not pPed then return { ok = false, message = 'Invalid patient target.' } end
+	local distance = #(GetEntityCoords(mPed) - GetEntityCoords(pPed))
+	local scanDistance = (((Config or {}).Systems or {}).Radial or {}).PatientStatus and ((((Config or {}).Systems or {}).Radial or {}).PatientStatus.PatientScanDistance or 3.0) or 3.0
+	if distance > scanDistance then return { ok = false, message = 'Patient is too far away.' } end
+	local summary = W2FAmbulance.Triage.getPatientSummary(patientId)
+	local condition = summary.treatment == 'revive' and 'Critical' or (summary.treatment == 'help' and 'Unstable' or (summary.treatment == 'none' and 'Stable' or 'Injured'))
+	return {
+		ok = true,
+		patientStatus = {
+			active = true,
+			patientServerId = patientId,
+			patientName = W2FAmbulance.Core.getCharFullName(patient) or 'Unknown Patient',
+			condition = condition,
+			consciousness = summary.treatment == 'revive' and 'Unconscious' or 'Unknown',
+			pulse = summary.maxSeverity >= 3 and 'Weak' or 'Present',
+			breathing = summary.treatment == 'help' and 'Irregular' or 'Not Detected',
+			bleeding = summary.bleedLevel >= 3 and 'Heavy' or (summary.bleedLevel > 0 and 'Moderate' or 'None'),
+			injuries = summary.maxSeverity > 0 and ('Detected trauma severity ' .. summary.maxSeverity) or 'Unknown / Not Detected',
+			cause = summary.causeLabel or 'Unknown / Not Detected',
+			severity = summary.maxSeverity or 0,
+			recommendedTreatment = summary.label or 'Further Assessment Required',
+			requiredTreatment = summary.treatment == 'repair' and 'stabilize' or summary.treatment,
+			priority = summary.treatment == 'revive' and 'red' or (summary.maxSeverity >= 3 and 'yellow' or 'green'),
+			treated = false
+		}
+	}
+end)
+
 local function alertAmbulance(src, text)
 	local ped = GetPlayerPed(src)
 	local coords = GetEntityCoords(ped)
@@ -113,6 +149,7 @@ RegisterNetEvent('hospital:server:TreatWounds', function(playerId)
 			'Field wound treatment administered by EMS.'
 		)
 	end
+	TriggerClientEvent('w2f-ambulance:client:patientTreatmentResult', src, { success = true, action = 'treat', patientId = playerId })
 end)
 
 ---@param playerId number
@@ -153,6 +190,7 @@ RegisterNetEvent('hospital:server:StabilizePatient', function(playerId)
 			'Field trauma stabilization administered by EMS.'
 		)
 	end
+	TriggerClientEvent('w2f-ambulance:client:patientTreatmentResult', src, { success = true, action = 'stabilize', patientId = playerId })
 end)
 
 ---@param playerId number
@@ -188,6 +226,7 @@ RegisterNetEvent('hospital:server:AssistPatient', function(playerId)
             'Field breathing assist provided by EMS.'
         )
     end
+	TriggerClientEvent('w2f-ambulance:client:patientTreatmentResult', src, { success = true, action = 'assist', patientId = playerId })
 end)
 
 ---@param playerId number
@@ -236,6 +275,7 @@ RegisterNetEvent('hospital:server:RevivePlayer', function(playerId)
 			'Patient revived in the field by EMS personnel.'
 		)
 	end
+	TriggerClientEvent('w2f-ambulance:client:patientTreatmentResult', src, { success = true, action = 'revive', patientId = playerId })
 end)
 
 ---@param targetId number
