@@ -13,7 +13,6 @@ ox_lib 'locale'
 ui_page 'web/dist/index.html'
 
 dependencies {
-    'qbx_core',
     'ox_lib',
     'ox_inventory',
     'ox_target',
@@ -22,8 +21,8 @@ dependencies {
 
 shared_scripts {
     '@ox_lib/init.lua',
-    '@qbx_core/modules/lib.lua',
     'shared/init.lua',
+    'shared/framework.lua',
     'config/systems.lua',
     'config/ranks.lua',
     'config/equipment.lua',
@@ -43,8 +42,8 @@ shared_scripts {
 }
 
 client_scripts {
-    '@qbx_core/modules/playerdata.lua',
     'client/namespace.lua',
+    'client/framework.lua',
     'medical/client/damage/apply-damage-effects.lua',
     'medical/client/damage/damage.lua',
     'medical/client/main.lua',
@@ -87,6 +86,7 @@ client_scripts {
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/namespace.lua',
+    'server/framework.lua',
     'server/bootstrap.lua',
     'medical/server/main.lua',
     'server/database.lua',
